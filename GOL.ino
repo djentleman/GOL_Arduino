@@ -1,4 +1,4 @@
-// game of life on i2c 
+// game of life on LED matrix via I2C
 
 
 #include "Wire.h" // I2C API
