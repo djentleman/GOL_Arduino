@@ -4,11 +4,12 @@
 #include "Wire.h" // I2C API
 
 
+
+
 int currentArr[8][8]; // this turn
 int nextArr[8][8]; // next turn
 
-int threshold = 20; // threshold% of initial grid will be 1
-
+int threshold;
 
 
 void multiplex(int row, int col){
@@ -42,12 +43,24 @@ int countNeighbors(int i, int j){
   int neighbors = 0;
   for (int k = -1; k <= 1; k++){
     for (int m = -1; m <= 1; m++){
-      if (j + m < 0 || i + k < 0 || j + m > 7 || i + k > 7){
-        continue;
-      } else if (i + k == i && j + m == j){
+      if (k == 0 && m == k){
         continue;
       }
-      neighbors = neighbors + currentArr[i + k][j + m];
+      else if (i + k < 0){
+        neighbors+=currentArr[7][j + m]; // i + k = 7
+      }
+      else if (j + m < 0){
+        neighbors+=currentArr[i + k][7]; // j + m = 7
+      }
+      else if (i + k > 7){
+        neighbors+=currentArr[0][j + m]; // i + k = 0
+      }
+      else if (j + m > 7){
+        neighbors+=currentArr[i + k][0]; // j + m = 0
+      } 
+      else {
+        neighbors+=currentArr[i + k][j + m];
+      }
     }
   }
   return neighbors;
@@ -119,7 +132,7 @@ void setup()
   randomSeed(analogRead(0)); // init random number generator, 
   //analogRead(0) is as close to a true RN were goign to get!
   Wire.begin(); // wake up I2C bus
-// set I/O pins to outputs
+  // set I/O pins to outputs
   Wire.beginTransmission(0x20);
   Wire.write(0x00); // IODIRA register
   Wire.write(0x00); // set all of port A to outputs
@@ -128,11 +141,15 @@ void setup()
   Wire.write(0x01); // IODIRB register
   Wire.write(0x00); // set all of port B to outputs
   Wire.endTransmission();
+  threshold = random(80); // threshold% of initial grid will be 1
   setupMatrix();
   initCurrent();
+  
+  
 }
 
 void loop(){
   updateMatrix(); // update the LED matrix with new data
   nextTurn();
+  delay(analogRead(A1) / 10);
 }
