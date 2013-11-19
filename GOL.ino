@@ -10,6 +10,7 @@ int currentArr[8][8]; // this turn
 int nextArr[8][8]; // next turn
 
 int threshold;
+int count = 0;
 
 
 void multiplex(int row, int col){
@@ -149,7 +150,11 @@ void setup()
 }
 
 void loop(){
+  int spd = (int)analogRead(A1) / 50;
   updateMatrix(); // update the LED matrix with new data
-  nextTurn();
-  delay(analogRead(A1) / 10);
+  if (count % (spd + 1) == 0){
+  nextTurn(); // update state
+  }
+  //delay(analogRead(A1) / 10);
+  count++;
 }
